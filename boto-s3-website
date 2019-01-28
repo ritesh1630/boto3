@@ -1,0 +1,34 @@
+import boto3
+
+
+#session= boto3.Session(profile_name="pythonAutomation",)
+s3 =boto3.resource("s3")
+
+new_bucket=s3.create_bucket(Bucket="ankey1234567809", CreateBucketConfiguration={"LocationConstraint":"us-east-2"})
+print(new_bucket)
+
+file = new_bucket.upload_file("index.html","index.html",ExtraArgs={"ContentType":"text/html"})
+print(file)
+
+policy = """
+{
+    "Version": "2012-10-17",
+    "Id": "Policy1548711431267",
+    "Statement": [
+        {
+            "Sid": "Stmt1548711429479",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::%s/*"
+        }
+    ]
+}
+"""% new_bucket.name
+policy=policy.strip()
+buket_policy = new_bucket.Policy()
+bucket_policy= buket_policy.put(Policy=policy)
+website = s3.BucketWebsite(new_bucket.name)
+website - website.put(WebsiteConfiguration={'ErrorDocument':{ 'Key': 'error.html'},'IndexDocument': {'Suffix': 'index.html'}})
+endpoint = "http://{}.s3-website-us-east-2.amazonaws.com".formate(new_bucket.name)
+print(endpoint)
